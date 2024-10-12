@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+app_path=../$1
+
+if [ -d "$app_path" ]; then
+  rails_command="echo $app_path exists, skipping rails new"
+else
+  rails_command="rails new $app_path -d postgresql -a propshaft -T "
+fi
+
+$rails_command &&
+cp .editorconfig .envrc .ruby-version devenv.nix devenv.yaml $app_path &&
+sed -i "s/APP_NAME/$1/g" $app_path/devenv.nix &&
+cd $app_path &&
+direnv allow &&
+bundle add rspec-rails &&
+bundle add rubocop &&
+bundle add rubocop-rails &&
+bundle add rubocop-rspec &&
+bundle add rubocop-rake &&
+bundle install &&
+rails g rspec:install
