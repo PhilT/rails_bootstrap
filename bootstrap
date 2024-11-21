@@ -1,5 +1,10 @@
 #!/usr/bin/env sh
-app_path=../$1
+app_path=/data/code/$1
+
+if [ -z "$1" ]; then
+  echo "usage: $0 <NEW_APP_NAME>"
+  exit 1
+fi
 
 if [ -d "$app_path" ]; then
   rails_command="echo $app_path exists, skipping rails new"
