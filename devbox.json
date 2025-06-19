@@ -1,0 +1,54 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.14.2/.schema/devbox.schema.json",
+  "packages": {
+    "sqlite": "latest",
+    "ruby":   "3.4",
+    "libyaml": {
+      "version": "latest",
+      "outputs": ["dev"],
+    },
+    "pkg-config": "latest",
+    "gcc":        "latest",
+    "gnumake":    "latest",
+    "lsof":       "latest",
+    "vips": {
+      "version": "latest",
+      "outputs": ["dev", "bin", "out"],
+    },
+    "playwright-driver.browsers": "",
+  },
+  "env": {
+    "SETUP_COMPLETE":           "$DEVBOX_PROJECT_ROOT/.devbox/.setup-complete",
+    "PLAYWRIGHT_BROWSERS_PATH": "$DEVBOX_PACKAGES_DIR",
+  },
+  "shell": {
+    "init_hook": [
+      "[ -f \"$SETUP_COMPLETE\" ] && bundle check || bundle install",
+    ],
+    "scripts": {
+      "purge": [
+        "rm -f \"$SETUP_COMPLETE\"",
+      ],
+      "setup": [
+        "[ -f \"$SETUP_COMPLETE\" ] && echo Nothing to do, run: 'devbox run reset' to re-initialize the project && exit 0",
+        "bundle check || bundle",
+        "rails db:setup",
+        "touch \"$SETUP_COMPLETE\"",
+        "echo \"Setup complete!\"",
+        "echo \"Now run `devbox services up` to start process-compose\"",
+      ],
+      "reset": [
+        "devbox run purge",
+        "devbox run setup",
+      ],
+      "update": [
+        "bundle check || bundle",
+        "rails db:migrate",
+        "rails db:migrate RAILS_ENV=test",
+      ],
+      "test": [
+        "rails test",
+      ],
+    },
+  },
+}

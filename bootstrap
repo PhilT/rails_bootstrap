@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
-app_path=/data/code/$1
+app_name=$1
+app_path=/data/code/$app_name
 
-if [ -z "$1" ]; then
+if [ -z "$app_name" ]; then
   echo "usage: $0 <NEW_APP_NAME>"
   exit 1
 fi
@@ -13,11 +14,13 @@ else
 fi
 
 $rails_command &&
-cp .editorconfig .envrc .ruby-version devenv.nix devenv.yaml $app_path &&
-sed -i "s/APP_NAME/$1/g" $app_path/devenv.nix &&
-cd $app_path &&
-direnv allow &&
-bundle add rubocop &&
-bundle add rubocop-rails &&
-bundle add rubocop-rake &&
+cp .editorconfig .envrc .ruby-version devbox.json $app_path &&
+sed -i "s/APP_NAME/$1/g" $app_path/devbox.json
+cat .gitignore >> $app_path/.gitignore
+cd $app_path
+direnv allow
 bundle install
+git add .
+git ci -am "$rails_command"
+git remote add origin git@github.com:PhilT/$app_name.git
+git push -u origin main
